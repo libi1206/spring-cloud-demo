@@ -16,6 +16,7 @@
 
 * 3.Eureka搭建
 	* 导入依赖（需要注意的是，由于Euerka2.0闭源之后，SpringCloud的Euerka版本号不会在更新了，所以需要再引用一个仓库）
+	
 	```
 	<!--SpringCloud eureka-server -->
     <dependency>
@@ -24,6 +25,7 @@
     </dependency>
 	```
 	仓库
+	
 	```
 	<!-- 注意：由于Eureka2.0之后闭源 这里必须要添加， 否者各种依赖有问题 -->
     <repositories>
@@ -38,6 +40,7 @@
     </repositories>
 	```
 	* 填写配置文件application.properties
+	
 	```
 	server.port=8081
 	#注册中心IP
