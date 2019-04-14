@@ -8,6 +8,7 @@
         <module>web-provider</module>
         <module>web-consumer</module>
         <module>zookeeper-provider</module>
+        <module>web-consumer-feign</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

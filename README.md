@@ -217,3 +217,53 @@ Zookeeper是一个分布式协调工具，使用zookeeper做注册中心的步�
 ---
 
 # SpringCloud负载均衡
+* Ribbon是本地客户端负载均衡器，在获取到所有的服务实例的时候，就会在本地做负载均衡的算法（轮询是通过取余的方式实现的）
+* Ribbon与Nginx的区别
+    * Ribbon实把所有的实例缓存到本地，通过算法进行负载均衡，适合在微服务RPC调用中使用
+    * Nginx是在服务端，客户端所有的请求都交给Nginx实现转发，适合针对于服务器端的
+
+# Feign客户端工具
+Feign是一个声明式Http客户端工具，采用接口与注解实现。集成方法如下
+* 导入依赖
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-openfeign</artifactId>
+</dependency>
+```
+* 创建一个接口，这个接口就就一个远程调用的所有方法，调用接口如下
+
+```java
+/**下面的就是web提供者应用名*/
+@FeignClient(name = "web-provider")
+public interface TestRemoteApi {
+    @RequestMapping("/test")
+    public String getMessage();
+}
+```
+* 然后就可以在真正需要调用的地方自动注入这个接口，然后调用
+
+```java
+@RestController
+public class TestController {
+    @Autowired
+    private TestRemoteApi testRemoteApi;
+    @RequestMapping("/test")
+    public String test() {
+        return testRemoteApi.getMessage();
+    }
+}
+```
+* 记得在启动类里添加启动Feign的注解
+
+```java
+@SpringBootApplication
+@EnableFeignClients
+@EnableEurekaClient
+public class FeignApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(FeignApplication.class, args);
+    }
+}
+```
