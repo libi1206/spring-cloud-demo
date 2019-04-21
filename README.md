@@ -267,3 +267,45 @@ public class FeignApplication {
     }
 }
 ```
+* 代码的格式优化：
+    * 在Service接口里面所有的接口都带上`@RequestMapping`来个暴露给Feign客户端，并且放在一个共享模组里
+    * 在ServiceImpl里也要带上`@RequestMapping`和`@RestController`作为一个Rest接口给Feign调用（类似于Dubbo中提出公共接口使用`@Reference`和`@Service`来调用接口）
+* feign设置超时时间
+    * feign默认开启Ribbon，超时时间为1s，在application.properties里配置下面的两个参数，就可以配置超时时间
+    
+    ```
+    #建立连接的过程中超时的时间
+    ribbn.read-timeout = 5000
+    #建立连接后到获取到响应的超时时间
+    ribbn.connect-timeout = 5000
+    ```
+    以上的方法已经失效了。。。还没有找到对应的方法
+* feign整合ribbon：（默认开启，轮询机制）
+
+# Hystrix服务保护
+* 服务雪崩效应：当多个服务同时依赖一个服务，导致这个服务不可用，进而导致依赖的多个服务不可用
+* Hystrix是一个服务保护框架，在微服务中，在高并发情况下导致客户端（整个微服务不可用）不可用，Hystrix可用帮我们解决服务雪崩
+    * 服务降级：在高并发情况下防止客户端一直等待，返回一个友好的提示，不会处理请求（调用fallBack方法）
+    * 服务熔断：在高并发的情况，当请求到达了一定的极限（流量到达了一定的阈值），为了保护服务，Hystrix就会开启**服务降级**返回一个友好的提示
+    * 服务隔离：当服务器的一个接口并发量超过服务器线程限度的时候，如果不使用服务隔离，这个服务器的另外一个接口也会无法正常访问
+        * 线程池隔离：每个接口使用独立的线程池，这样接口之间就不会相互影响（但是这样CPU占用会过高）
+        * 信号量隔离
+    * 如何整合Hustrix
+        * 导入依赖
+        
+        ```xml
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netfix-hystrix</artifactId>
+        </dependency>
+        ```
+        * 在`application.properties`里配置参数
+        
+        ```
+        feign.hystrix.enabled=true
+        ```
+        * 在service**实现类**需要服务保护的方法（接口）上添加注解，默认就会开启服务降级、服务熔断和服务隔离
+        
+        ```
+        @HystrixCommand(fallBackMethod = "方法名")
+        ```
